@@ -5,6 +5,27 @@ menjalankan seluruh project di Kaggle, tanpa Colab sama sekali.
 
 ---
 
+## Changelog Audit (Round 2)
+
+Setelah kamu melaporkan error `FileNotFoundError` di `00_EDA`, seluruh 10 notebook
+diaudit ulang secara menyeluruh. Ditemukan dan diperbaiki:
+
+| # | Masalah | Notebook | Tingkat |
+|---|---|---|---|
+| 1 | Semua folder output belum tentu ada saat ditulis | 8 dari 10 notebook | 🔴 Kritis |
+| 2 | `drive.mount()` mentah tanpa guard environment, crash langsung di Kaggle | `04_homography_pipeline` Cell 1 | 🔴 Kritis |
+| 3 | `from google.colab import files` tanpa guard, crash langsung di Kaggle | `07_video_demo` Cell 10 | 🔴 Kritis |
+| 4 | Default path video masih hardcode ke Google Drive | `07_video_demo` Cell 4 & 10 | 🟡 Robustness |
+| 5 | `_link()` pakai `exists()` bukan `lexists()` — gagal kalau re-run dengan broken symlink | Semua notebook | 🟡 Robustness |
+| 6 | Tidak ada verifikasi kalau `git clone` gagal — error jadi cryptic | Semua notebook | 🟡 Robustness |
+| 7 | `GITHUB_REPO` masih placeholder `USERNAME` | Semua notebook | 🟢 Konfigurasi |
+
+Semua sudah diperbaiki di zip terbaru. `GITHUB_REPO` sudah otomatis terisi
+`https://github.com/atangorp/soccer-homography-benchmark.git` — tidak perlu edit manual lagi.
+
+---
+
+
 ## 0. Jawaban Singkat Dulu
 
 | Pertanyaan | Jawaban |
@@ -94,22 +115,20 @@ Ini jawaban paling penting untuk pertanyaan soal "file yang harus berkesinambung
 
 Kaggle butuh cara mengambil `src/`, `configs/`, `scripts/` di setiap sesi baru. Cara paling rapi adalah GitHub (bukan upload manual berkali-kali).
 
+Repo kamu: **`https://github.com/atangorp/soccer-homography-benchmark.git`**
+*(sudah otomatis terisi di semua notebook — tidak perlu edit manual lagi)*
+
 ```bash
 cd soccer-homography-benchmark
 git init
 git add .
 git commit -m "Initial commit"
-```
-
-Buat repo baru di https://github.com/new (bisa **Private**, tidak masalah — Kaggle notebook tetap bisa clone repo private kalau kamu attach Personal Access Token lewat Kaggle Secrets, tapi untuk simpelnya di awal, buat **Public** dulu supaya `git clone` polos langsung jalan tanpa token).
-
-```bash
-git remote add origin https://github.com/USERNAME/soccer-homography-benchmark.git
+git remote add origin https://github.com/atangorp/soccer-homography-benchmark.git
 git branch -M main
 git push -u origin main
 ```
 
-Lalu **edit SEKALI** baris `GITHUB_REPO = '...'` di tiap notebook, ganti `USERNAME` dengan username GitHub kamu. (10 notebook, 10 kali edit satu baris — searah dan cepat.)
+Pastikan repo **Public** (Settings → General → Danger Zone di GitHub), supaya `git clone` polos di Kaggle langsung jalan tanpa perlu token akses.
 
 ### Langkah 2: Upload dataset mentah sebagai Kaggle Dataset (sekali saja)
 
