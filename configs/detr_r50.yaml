@@ -1,0 +1,37 @@
+# configs/detr_r50.yaml
+# Deformable DETR-R50 — Transformer set-prediction, balanced variant
+# Framework: Deformable DETR (custom, tidak pakai MMPose)
+# Estimasi training: ~8–10 jam di V100 GPU
+
+model:
+  arch: "deformable_detr"
+  variant: "r50"
+  family: "detr"
+  backbone: "resnet50"
+  num_feature_levels: 4
+  num_queries: 1                   # Soccer field = single instance per image
+  n_keypoints: 32
+  pretrained_backbone: true
+
+training:
+  epochs: 50                       # DETR converge lebih cepat dari CNN
+  batch: 4                         # DETR lebih boros memory
+  optimizer: "AdamW"
+  lr: 0.0002
+  lr_backbone: 0.00002             # 10x lebih kecil dari head
+  weight_decay: 0.0001
+  clip_max_norm: 0.1
+  lr_scheduler: "step"
+  lr_drop: 40
+
+dataset:
+  type: "COCOKeypoint"
+  train_ann: "data/converted/annotations/train.json"
+  val_ann: "data/converted/annotations/val.json"
+  test_ann: "data/converted/annotations/test.json"
+  data_prefix: "data/converted/images"
+  n_keypoints: 32
+
+output:
+  output_dir: "artifacts/weights/detr/r50"
+  save_best: true

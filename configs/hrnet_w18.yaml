@@ -1,0 +1,43 @@
+# configs/hrnet_w18.yaml
+# HRNet-W18 — lightweight CNN heatmap-based variant
+# Framework: MMPose (TopdownHeatmapSimpleHead)
+# Estimasi training: ~8–10 jam di T4 GPU (300 epoch)
+# WAJIB: dataset sudah dikonversi ke COCO JSON (jalankan 01_dataset_conversion.ipynb dulu)
+
+model:
+  arch: "hrnet"
+  variant: "w18"
+  family: "hrnet"
+  # MMPose config file path (relatif dari mmpose installation)
+  mmpose_config: "td-hm_hrnet-w18_8xb64-210e_coco-256x192.py"
+  # Pretrained backbone ImageNet
+  pretrained: "https://download.openmmlab.com/mmpose/pretrain_models/hrnet_w18-00eb2006_20210924.pth"
+  channel_cfg:
+    num_output_channels: 32       # = n_keypoints
+    dataset_joints: 32
+    dataset_channel: [list(range(32))]
+    inference_channel: [list(range(32))]
+
+training:
+  epochs: 300
+  imgsz: 256                       # HRNet input size (berbeda dari YOLO!)
+  batch: 32
+  optimizer: "Adam"
+  lr: 0.0005
+  lr_scheduler: "step"
+  lr_step: [170, 200]
+  weight_decay: 0.0
+
+dataset:
+  type: "TopdownCocoDataset"       # MMPose dataset class
+  # Path ke COCO JSON — set saat runtime di notebook
+  train_ann: "data/converted/annotations/train.json"
+  val_ann: "data/converted/annotations/val.json"
+  test_ann: "data/converted/annotations/test.json"
+  data_prefix: "data/converted/images"
+  n_keypoints: 32
+
+output:
+  work_dir: "artifacts/weights/hrnet/w18"
+  save_best: "coco/AP"             # Simpan checkpoint terbaik berdasarkan AP
+  interval: 10                     # Eval setiap N epoch

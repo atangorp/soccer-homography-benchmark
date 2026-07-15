@@ -1,0 +1,62 @@
+# eval_global.yaml
+# =================
+# Konfigurasi evaluasi GLOBAL — dipakai oleh semua 11 model.
+# JANGAN ubah nilai ini tanpa mendiskusikan implikasi ke seluruh pipeline.
+# Satu file ini menjamin semua eksperimen menggunakan parameter identik.
+
+# ── Keypoint detection threshold ─────────────────────────────────────────────
+# Hanya keypoint dengan confidence >= nilai ini yang dipakai untuk homography.
+# Nilai 0.8 dipilih untuk menyaring false positive agresif.
+# Ref: eksperimen awal YOLOv8 di keypoint_detection_homography_mapping.ipynb
+conf_threshold: 0.8
+
+# ── Homography / RANSAC ───────────────────────────────────────────────────────
+# Threshold reprojection error (dalam pixel) untuk RANSAC inlier classification.
+# Keypoint dengan reprojection error < nilai ini = inlier (hijau di visualisasi).
+# Keypoint dengan error >= nilai ini = outlier (merah di visualisasi).
+# Nilai 5.0px dipilih berdasarkan ~0.78% dari image width 640px.
+ransac_threshold: 5.0
+
+# Minimum jumlah keypoint terdeteksi untuk menjalankan homography.
+# DLT butuh minimal 4 point. Kita pakai 6 sebagai margin safety.
+min_keypoints_for_homography: 6
+
+# Maksimum condition number dari matriks H yang dianggap valid secara numerik.
+# H dengan condition number > nilai ini dianggap ill-conditioned (tidak stabil).
+max_condition_number: 1000.0
+
+# ── Latency measurement ───────────────────────────────────────────────────────
+# Jumlah warm-up inference runs sebelum mulai timing.
+# Penting untuk: GPU cache warm, CUDA context initialization, model JIT compilation.
+latency_warmup_runs: 5
+
+# Jumlah timed inference runs untuk menghitung mean latency.
+latency_timed_runs: 100
+
+# ── Evaluation split ─────────────────────────────────────────────────────────
+eval_split: "test"  # train / val / test
+
+# ── Image size ────────────────────────────────────────────────────────────────
+# Harus konsisten dengan imgsz yang dipakai saat training.
+imgsz: 640
+
+# ── Dataset source classification ────────────────────────────────────────────
+# Keyword dalam filename untuk mengklasifikasikan gambar ke sumber data.
+# Dipakai untuk analisis broadcast vs scouting di homography pipeline.
+broadcast_keywords: ["worldcup", "broadcast", "tv", "match"]
+scouting_keywords:  ["drone", "tactical", "scouting", "top"]
+# Jika filename tidak mengandung keyword apapun → dikategorikan "unknown"
+
+# ── Pitch reference ───────────────────────────────────────────────────────────
+# Dimensi representasi canonical lapangan (bukan ukuran lapangan FIFA sebenarnya).
+# Koordinat keypoint di pitch_reference.py menggunakan skala ini.
+pitch_width: 120
+pitch_height: 80
+n_keypoints: 32
+
+# ── Output paths (relatif dari project root) ─────────────────────────────────
+output:
+  results_master_csv:   "artifacts/logs/evaluation/results_master.csv"
+  homography_csv:       "artifacts/logs/evaluation/homography_results.csv"
+  figures_dir:          "artifacts/results/figures"
+  tables_dir:           "artifacts/results/tables"

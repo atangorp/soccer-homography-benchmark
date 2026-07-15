@@ -1,0 +1,38 @@
+# configs/vitpose_base.yaml
+# ViTPose-Small — Transformer-based, balanced variant
+# Framework: MMPose (ViTPose)
+# Estimasi training: ~14–18 jam di V100 GPU
+# Butuh pretrained ViT-Small ImageNet-21K backbone
+
+model:
+  arch: "vitpose"
+  variant: "base"
+  family: "vitpose"
+  mmpose_config: "td-hm_ViTPose-base_8xb64-210e_coco-256x192.py"
+  pretrained: "https://download.openmmlab.com/mmpose/v1/body_2d_keypoint/topdown_heatmap/coco/td-hm_ViTPose-base_8xb64-210e_coco-256x192-8216b8af_20230314.pth"
+  embed_dim: 768
+  depth: 12
+  num_heads: 12
+
+training:
+  epochs: 210
+  imgsz: 256
+  batch: 64
+  optimizer: "AdamW"
+  lr: 0.0005
+  weight_decay: 0.1
+  warmup_epochs: 5
+  layer_decay: 0.65
+
+dataset:
+  type: "TopdownCocoDataset"
+  train_ann: "data/converted/annotations/train.json"
+  val_ann: "data/converted/annotations/val.json"
+  test_ann: "data/converted/annotations/test.json"
+  data_prefix: "data/converted/images"
+  n_keypoints: 32
+
+output:
+  work_dir: "artifacts/weights/vitpose/base"
+  save_best: "coco/AP"
+  interval: 10
